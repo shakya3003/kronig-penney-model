@@ -13,6 +13,7 @@ Run with:
     python3 numerical_analysis.py
 """
 
+import os
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")  # Non-interactive publication backend
@@ -67,10 +68,11 @@ def perform_parameter_sweep(b=0.10, V0=10.0, num_a_points=25):
     return a_values, numerical_energies, (band1_min, band1_max, band2_min, band2_max, band3_min, band3_max)
 
 
-def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=0.10, V0=10.0, filename="figure4_parameter_sweep_a.png"):
+def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=0.10, V0=10.0, filename="figures/figure4_parameter_sweep_a.png"):
     """
     Generates a comprehensive 3-panel figure visualizing the E vs. a behavior.
     """
+    os.makedirs("figures", exist_ok=True)
     b1_min, b1_max, b2_min, b2_max, b3_min, b3_max = band_edges
 
     fig = plt.figure(figsize=(14, 10))
@@ -172,8 +174,8 @@ def main():
         print(f"{a_val:<10.2f} | {evals[0]:<14.4f} | {evals[1]:<14.4f} | {evals[2]:<14.4f} | {evals[3]:<14.4f}")
 
     print("-" * 75)
-    print("Generating comprehensive publication figure 'figure4_parameter_sweep_a.png'...")
-    generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=b, V0=V0)
+    print("Generating comprehensive publication figure 'figures/figure4_parameter_sweep_a.png'...")
+    generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=b, V0=V0, filename="figures/figure4_parameter_sweep_a.png")
 
     print("=" * 75)
     print("Phase 5 calculations completed successfully!")

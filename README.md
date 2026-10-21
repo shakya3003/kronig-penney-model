@@ -75,10 +75,10 @@ python3 plot_generator.py
 
 ## 📊 Deliverable Figures
 
-- **[Figure 1: Allowed State Wavefunction & Probability Density](figure1_allowed_state.png)** ($E = 1.20\text{ eV}$)
-- **[Figure 2: Forbidden Band Gap Wavefunction Attenuation](figure2_forbidden_gap.png)** ($E = 3.20\text{ eV}$)
-- **[Figure 3: E(k) Electronic Band Structure in 1st Brillouin Zone](figure3_ek_dispersion.png)**
-- **[Figure 4: Numerical TISE Solution & Parameter Sweep vs. Well Width $a$](figure4_parameter_sweep_a.png)**
+- **[Figure 1: Allowed State Wavefunction & Probability Density](figures/figure1_allowed_state.png)** ($E = 1.20\text{ eV}$)
+- **[Figure 2: Forbidden Band Gap Wavefunction Attenuation](figures/figure2_forbidden_gap.png)** ($E = 3.20\text{ eV}$)
+- **[Figure 3: E(k) Electronic Band Structure in 1st Brillouin Zone](figures/figure3_ek_dispersion.png)**
+- **[Figure 4: Numerical TISE Solution & Parameter Sweep vs. Well Width $a$](figures/figure4_parameter_sweep_a.png)**
 
 ---
 

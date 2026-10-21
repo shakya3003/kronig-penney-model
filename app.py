@@ -376,7 +376,7 @@ with tab3:
     """)
 
     if st.checkbox("Show Parameter Study: Energy Levels vs. Well Width $a$", value=True):
-        st.image("figure4_parameter_sweep_a.png", caption="Numerical TISE Solution: Energy Eigenvalues and Bandwidths vs. Well Width a", use_container_width=True)
+        st.image("figures/figure4_parameter_sweep_a.png", caption="Numerical TISE Solution: Energy Eigenvalues and Bandwidths vs. Well Width a", use_container_width=True)
         st.info(r"""
         **Physical Explanation of the Behavior (Question 6):**
         1. **Quantum Confinement Effect ($E \propto 1/a^2$):** As the well width $a$ increases, the electron has more room to spread out. Its kinetic energy drops according to $\sim 1/a^2$, shifting all energy levels downward.

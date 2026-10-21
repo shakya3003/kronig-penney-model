@@ -10,6 +10,7 @@ Run with:
     python3 plot_generator.py
 """
 
+import os
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")  # Headless publication backend
@@ -18,7 +19,7 @@ import matplotlib.pyplot as plt
 import kp_engine as kp
 
 
-def plot_allowed_state(N=5, E=1.20, a=0.50, b=0.10, V0=10.0, filename="figure1_allowed_state.png"):
+def plot_allowed_state(N=5, E=1.20, a=0.50, b=0.10, V0=10.0, filename="figures/figure1_allowed_state.png"):
     """Generates a 3-panel figure showing an allowed propagating Bloch state."""
     d = a + b
     res = kp.compute_dispersion(E, a, b, V0)
@@ -59,7 +60,7 @@ def plot_allowed_state(N=5, E=1.20, a=0.50, b=0.10, V0=10.0, filename="figure1_a
     print(f"[OK] Saved: {filename}")
 
 
-def plot_forbidden_state(N=5, E=3.20, a=0.50, b=0.10, V0=10.0, filename="figure2_forbidden_gap.png"):
+def plot_forbidden_state(N=5, E=3.20, a=0.50, b=0.10, V0=10.0, filename="figures/figure2_forbidden_gap.png"):
     """Generates a 3-panel figure showing wave attenuation inside a forbidden band gap."""
     d = a + b
     res = kp.compute_dispersion(E, a, b, V0)
@@ -100,7 +101,7 @@ def plot_forbidden_state(N=5, E=3.20, a=0.50, b=0.10, V0=10.0, filename="figure2
     print(f"[OK] Saved: {filename}")
 
 
-def plot_ek_band_structure(a=0.50, b=0.10, V0=10.0, E_max=20.0, filename="figure3_ek_dispersion.png"):
+def plot_ek_band_structure(a=0.50, b=0.10, V0=10.0, E_max=20.0, filename="figures/figure3_ek_dispersion.png"):
     """Plots E vs k dispersion in the Reduced Brillouin Zone Scheme."""
     d = a + b
     bands, gaps = kp.find_allowed_bands(a, b, V0, E_max=E_max)
@@ -162,10 +163,11 @@ def main():
     print("PHASE 4: GENERATING PUBLICATION-QUALITY SCIENTIFIC FIGURES")
     print("=" * 65)
 
+    os.makedirs("figures", exist_ok=True)
     a, b, V0 = 0.50, 0.10, 10.00
-    plot_allowed_state(N=5, E=1.20, a=a, b=b, V0=V0, filename="figure1_allowed_state.png")
-    plot_forbidden_state(N=5, E=3.20, a=a, b=b, V0=V0, filename="figure2_forbidden_gap.png")
-    plot_ek_band_structure(a=a, b=b, V0=V0, E_max=20.0, filename="figure3_ek_dispersion.png")
+    plot_allowed_state(N=5, E=1.20, a=a, b=b, V0=V0, filename="figures/figure1_allowed_state.png")
+    plot_forbidden_state(N=5, E=3.20, a=a, b=b, V0=V0, filename="figures/figure2_forbidden_gap.png")
+    plot_ek_band_structure(a=a, b=b, V0=V0, E_max=20.0, filename="figures/figure3_ek_dispersion.png")
 
     print("=" * 65)
     print("All 3 publication figures generated successfully!")

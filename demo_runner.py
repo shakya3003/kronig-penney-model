@@ -84,10 +84,10 @@ def test_numerical_differential_equation():
 def test_generated_figures():
     print_header("TEST 4: Deliverable Publication Figures Verification")
     figures = [
-        ("figure1_allowed_state.png", "Figure 1: Allowed Wavefunction & Probability Density"),
-        ("figure2_forbidden_gap.png", "Figure 2: Forbidden Band Gap Wavefunction Attenuation"),
-        ("figure3_ek_dispersion.png", "Figure 3: E(k) Band Diagram in 1st Brillouin Zone"),
-        ("figure4_parameter_sweep_a.png", "Figure 4: Numerical TISE Parameter Sweep vs. Well Width a"),
+        ("figures/figure1_allowed_state.png", "Figure 1: Allowed Wavefunction & Probability Density"),
+        ("figures/figure2_forbidden_gap.png", "Figure 2: Forbidden Band Gap Wavefunction Attenuation"),
+        ("figures/figure3_ek_dispersion.png", "Figure 3: E(k) Band Diagram in 1st Brillouin Zone"),
+        ("figures/figure4_parameter_sweep_a.png", "Figure 4: Numerical TISE Parameter Sweep vs. Well Width a"),
     ]
 
     all_found = True
