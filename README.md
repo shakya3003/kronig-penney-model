@@ -1,10 +1,10 @@
-# Interactive Kronig–Penney Model & Wavefunction Explorer
+# Interactive Kronig-Penney Model & Wavefunction Explorer
 
-A modern, interactive Python application and computational physics framework for investigating the electronic band structure, wavefunctions, and quantum tunneling of an electron in a 1D periodic potential using the **Kronig–Penney Model**.
+A modern, interactive Python application and computational physics framework for investigating the electronic band structure, wavefunctions, and quantum tunneling of an electron in a 1D periodic potential using the **Kronig-Penney Model**.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 1. **Interactive Web Dashboard (`app.py`)**:
    - Built with **Streamlit** for real-time reactivity.
@@ -19,7 +19,7 @@ A modern, interactive Python application and computational physics framework for
    - **Transfer Matrix Method (TMM)** constructing continuous, normalized wavefunctions $\psi(x)$ across $N$ wells.
 
 3. **Direct Numerical Differential Equation Solver (`numerical_analysis.py`)**:
-   - Solves the 1D Time-Independent Schrödinger Equation directly via Finite-Difference tridiagonal matrix diagonalization:
+   - Solves the 1D Time-Independent Schrodinger Equation directly via Finite-Difference tridiagonal matrix diagonalization:
      $$-\frac{\hbar^2}{2m} \frac{d^2\psi(x)}{dx^2} + V(x)\psi(x) = E\psi(x)$$
    - Sweeps well width $a$ from $0.20$ to $1.20\text{ nm}$ to demonstrate quantum confinement scaling ($E \propto 1/a^2$) and bandwidth narrowing (tight-binding limit).
 
@@ -29,7 +29,7 @@ A modern, interactive Python application and computational physics framework for
 
 ---
 
-## 🚀 Quickstart Guide
+## Quickstart Guide
 
 ### 1. Prerequisites & Installation
 Ensure Python 3.10+ is installed. Install the dependencies:
@@ -43,7 +43,7 @@ streamlit run app.py
 ```
 Open your browser to: **`http://localhost:8501`**
 
-### 3. Run the Automated Master Demonstration Suite
+### 3. Run the Automated Demonstration Suite
 ```bash
 python3 demo_runner.py
 ```
@@ -60,7 +60,7 @@ python3 plot_generator.py
 
 ---
 
-## 📁 Repository File Map
+## Repository File Map
 
 | File | Type | Description |
 | :--- | :---: | :--- |
@@ -68,12 +68,12 @@ python3 plot_generator.py
 | **[`kp_engine.py`](kp_engine.py)** | Backend | Core physics engine (analytical dispersion, TMM, tridiagonal TISE solver). |
 | **[`numerical_analysis.py`](numerical_analysis.py)** | Script | Differential equation solver & parameter sweep with respect to $a$ (Question 6). |
 | **[`plot_generator.py`](plot_generator.py)** | Script | Standalone generator for publication figures. |
-| **[`demo_runner.py`](demo_runner.py)** | Script | Master test runner verifying all algorithms, figures, and web server. |
+| **[`demo_runner.py`](demo_runner.py)** | Script | Test runner verifying all algorithms, figures, and web server. |
 | **[`requirements.txt`](requirements.txt)** | Config | Python dependency list (numpy, scipy, matplotlib, streamlit). |
 
 ---
 
-## 📊 Deliverable Figures
+## Deliverable Figures
 
 - **[Figure 1: Allowed State Wavefunction & Probability Density](figures/figure1_allowed_state.png)** ($E = 1.20\text{ eV}$)
 - **[Figure 2: Forbidden Band Gap Wavefunction Attenuation](figures/figure2_forbidden_gap.png)** ($E = 3.20\text{ eV}$)
@@ -82,8 +82,8 @@ python3 plot_generator.py
 
 ---
 
-## 📖 References
-1. Kronig, R. de L., & Penney, W. G. (1931). *A Quantum Mechanics of Electrons in Crystal Lattices*. Proc. R. Soc. Lond. A, 130(814), 499–513.
+## References
+1. Kronig, R. de L., & Penney, W. G. (1931). *A Quantum Mechanics of Electrons in Crystal Lattices*. Proc. R. Soc. Lond. A, 130(814), 499-513.
 2. Kittel, C. (2004). *Introduction to Solid State Physics* (8th ed.). John Wiley & Sons.
 3. Ashcroft, N. W., & Mermin, N. D. (1976). *Solid State Physics*. Saunders College Publishing.
 4. Griffiths, D. J., & Schroeter, D. F. (2018). *Introduction to Quantum Mechanics* (3rd ed.). Cambridge University Press.

@@ -1,14 +1,14 @@
 """
 kp_engine.py: Core Numerical Physics Engine for the Kronig-Penney Model
-========================================================================
+
 This module implements both analytical and numerical solutions for the 1D
-Kronig-Penney model and the 1D Time-Independent Schrödinger Equation (TISE).
+Kronig-Penney model and the 1D Time-Independent Schrodinger Equation (TISE).
 
 Key Capabilities:
 1. Physical units normalized for nanostructures (eV, nm, m_e).
 2. Analytical dispersion relation f(E) and exact band edge root-finding.
 3. Transfer Matrix Method (TMM) to construct continuous wavefunctions psi(x).
-4. Direct Finite-Difference differential equation solver for the 1D TISE (Question 6).
+4. Direct Finite-Difference differential equation solver for the 1D TISE.
 5. Probability density |psi(x)|^2 computation and normalization.
 """
 
@@ -16,61 +16,52 @@ import numpy as np
 from scipy.optimize import brentq
 from scipy.linalg import eigh_tridiagonal
 
-# ---------------------------------------------------------------------------
-# PHYSICAL CONSTANTS (Semiconductor / Nanoscale Units)
-# ---------------------------------------------------------------------------
-# Length: nanometers (nm)
-# Energy: electronvolts (eV)
-# Mass:   electron rest mass (m_e)
-# hbar^2 / (2 * m_e) in eV * nm^2:
+# Physical constant: hbar^2 / (2 * m_e) in eV * nm^2
+# Using nanoscale units (eV, nm, m_e) to prevent numerical overflow/underflow.
 HBAR2_OVER_2M = 0.0761996  # eV * nm^2
 
 
-# ---------------------------------------------------------------------------
-# 1. DISPERSION RELATION CALCULATION
-# ---------------------------------------------------------------------------
+# Dispersion relation: computes f(E) = cos(kd) for a given electron energy
 def compute_dispersion(E, a, b, V0):
     """
     Computes the Kronig-Penney dispersion function f(E) = cos(k*d).
 
     Parameters:
-    -----------
-    E  : float, electron energy in eV (must be > 0)
-    a  : float, well width in nm
-    b  : float, barrier width in nm
-    V0 : float, barrier potential height in eV
+        E  : float, electron energy in eV (must be > 0)
+        a  : float, well width in nm
+        b  : float, barrier width in nm
+        V0 : float, barrier potential height in eV
 
     Returns:
-    --------
-    dict containing:
-        - 'f_E': float, value of f(E)
-        - 'is_allowed': bool, True if |f(E)| <= 1
-        - 'k': float or None, real Bloch wavevector in nm^-1 (first Brillouin zone)
-        - 'kappa': float or None, decay parameter in nm^-1 if in a band gap
-        - 'alpha': float, wavevector inside the well (nm^-1)
-        - 'beta': float, decay/wavevector inside the barrier (nm^-1)
-        - 'd': float, lattice constant a + b (nm)
+        dict containing:
+            - 'f_E': float, value of f(E)
+            - 'is_allowed': bool, True if |f(E)| <= 1
+            - 'k': float or None, real Bloch wavevector in nm^-1 (first Brillouin zone)
+            - 'kappa': float or None, decay parameter in nm^-1 if in a band gap
+            - 'alpha': float, wavevector inside the well (nm^-1)
+            - 'beta': float, decay/wavevector inside the barrier (nm^-1)
+            - 'd': float, lattice constant a + b (nm)
     """
     d = a + b
     if E <= 0:
         raise ValueError("Electron energy E must be strictly positive (E > 0).")
 
-    # In the well (V = 0): alpha = sqrt(E / gamma)
+    # Wavevector inside the well (V = 0): alpha = sqrt(E / gamma)
     alpha = np.sqrt(E / HBAR2_OVER_2M)
 
     if np.isclose(E, V0, atol=1e-7):
-        # Limit as E -> V0 (beta -> 0):
+        # Limiting case as E approaches V0 (beta approaches 0)
         f_E = np.cos(alpha * a) - 0.5 * alpha * b * np.sin(alpha * a)
         beta_val = 0.0
     elif E < V0:
-        # Tunneling regime (E < V0): beta = sqrt((V0 - E) / gamma)
+        # Tunneling regime (E < V0): wavefunction decays exponentially in barriers
         beta = np.sqrt((V0 - E) / HBAR2_OVER_2M)
         beta_val = beta
         term1 = np.cos(alpha * a) * np.cosh(beta * b)
         term2 = ((beta**2 - alpha**2) / (2.0 * alpha * beta)) * np.sin(alpha * a) * np.sinh(beta * b)
         f_E = term1 + term2
     else:
-        # Over-barrier regime (E > V0): beta' = sqrt((E - V0) / gamma)
+        # Over-barrier regime (E > V0): wavefunction oscillates in both regions
         beta_p = np.sqrt((E - V0) / HBAR2_OVER_2M)
         beta_val = beta_p
         term1 = np.cos(alpha * a) * np.cos(beta_p * b)
@@ -80,12 +71,12 @@ def compute_dispersion(E, a, b, V0):
     is_allowed = abs(f_E) <= 1.0
 
     if is_allowed:
-        # cos(k*d) = f_E  =>  k in [0, pi/d]
+        # Allowed state: extract real Bloch wavevector from cos(k*d) = f_E
         k = np.arccos(np.clip(f_E, -1.0, 1.0)) / d
         kappa = None
     else:
+        # Forbidden gap: extract imaginary wavevector (decay rate) from cosh(kappa*d) = |f_E|
         k = None
-        # In forbidden gap: cosh(kappa*d) = |f_E|
         kappa = np.arccosh(abs(f_E)) / d
 
     return {
@@ -99,16 +90,16 @@ def compute_dispersion(E, a, b, V0):
     }
 
 
+# Evaluates f(E) over a continuous energy range for dispersion curve plotting
 def compute_dispersion_curve(a, b, V0, E_min=0.01, E_max=20.0, num_points=1000):
     """
     Evaluates f(E) over a continuous range of energies for plotting.
 
     Returns:
-    --------
-    energies : np.ndarray, array of energy values (eV)
-    f_vals   : np.ndarray, array of f(E) values
-    allowed  : np.ndarray (bool), True where |f(E)| <= 1
-    k_vals   : np.ndarray, Bloch wavevector k (nm^-1) where allowed, NaN elsewhere
+        energies : np.ndarray, array of energy values (eV)
+        f_vals   : np.ndarray, array of f(E) values
+        allowed  : np.ndarray (bool), True where |f(E)| <= 1
+        k_vals   : np.ndarray, Bloch wavevector k (nm^-1) where allowed, NaN elsewhere
     """
     energies = np.linspace(E_min, E_max, num_points)
     f_vals = np.empty_like(energies)
@@ -126,46 +117,41 @@ def compute_dispersion_curve(a, b, V0, E_min=0.01, E_max=20.0, num_points=1000):
     return energies, f_vals, allowed, k_vals
 
 
-# ---------------------------------------------------------------------------
-# 2. AUTOMATIC BAND EDGE ROOT-FINDER
-# ---------------------------------------------------------------------------
+# Band edge root-finder: locates all allowed [E_min, E_max] intervals using Brent's method
 def find_allowed_bands(a, b, V0, E_max=20.0, num_samples=1500):
     """
     Locates all allowed energy bands [E_min, E_max] up to E_max using
     bracketed Brent root-finding on f(E) = +1 and f(E) = -1.
 
     Returns:
-    --------
-    bands : list of dicts, each with keys:
-            'band': int (1-based index)
-            'E_min': float (eV)
-            'E_max': float (eV)
-            'width': float (eV)
-    gaps  : list of dicts, each with keys:
-            'gap': int
-            'E_min': float
-            'E_max': float
-            'width': float
+        bands : list of dicts, each with keys:
+                'band': int (1-based index)
+                'E_min': float (eV)
+                'E_max': float (eV)
+                'width': float (eV)
+        gaps  : list of dicts, each with keys:
+                'gap': int
+                'E_min': float
+                'E_max': float
+                'width': float
     """
     E_grid = np.linspace(0.01, E_max, num_samples)
     f_grid = np.array([compute_dispersion(E, a, b, V0)["f_E"] for E in E_grid])
 
-    # Find crossings of f(E) = +1 and f(E) = -1
+    # Helper functions for root-finding at f(E) = +1 and f(E) = -1
     def f_minus_1(E):
         return compute_dispersion(E, a, b, V0)["f_E"] - 1.0
 
     def f_plus_1(E):
         return compute_dispersion(E, a, b, V0)["f_E"] + 1.0
 
-    # Locate indices where |f(E)| <= 1 changes
+    # Identify continuous segments where |f(E)| <= 1 (allowed regions)
     is_allowed = np.abs(f_grid) <= 1.0
-
-    # Identify continuous segments of allowed states
     transitions = np.diff(is_allowed.astype(int))
     starts = np.where(transitions == 1)[0]
     ends = np.where(transitions == -1)[0]
 
-    # Handle boundary conditions at the grid edges
+    # Handle cases where the grid starts or ends inside an allowed region
     if is_allowed[0]:
         starts = np.insert(starts, 0, 0)
     if is_allowed[-1]:
@@ -174,9 +160,8 @@ def find_allowed_bands(a, b, V0, E_max=20.0, num_samples=1500):
     bands = []
     band_idx = 1
     for s_idx, e_idx in zip(starts, ends):
-        # Refine start boundary
+        # Refine the lower band edge using Brent's method
         E_start_bracket = (E_grid[s_idx], E_grid[min(s_idx + 1, len(E_grid) - 1)])
-        # Check which boundary condition (+1 or -1) was crossed
         f_s0 = f_grid[s_idx]
         f_s1 = f_grid[min(s_idx + 1, len(E_grid) - 1)]
 
@@ -190,7 +175,7 @@ def find_allowed_bands(a, b, V0, E_max=20.0, num_samples=1500):
         except ValueError:
             E_min = E_grid[s_idx]
 
-        # Refine end boundary
+        # Refine the upper band edge using Brent's method
         E_end_bracket = (E_grid[e_idx], E_grid[min(e_idx + 1, len(E_grid) - 1)])
         f_e0 = f_grid[e_idx]
         f_e1 = f_grid[min(e_idx + 1, len(E_grid) - 1)]
@@ -214,7 +199,7 @@ def find_allowed_bands(a, b, V0, E_max=20.0, num_samples=1500):
             })
             band_idx += 1
 
-    # Deduce band gaps between successive bands
+    # Derive band gaps as the intervals between successive allowed bands
     gaps = []
     for i in range(len(bands) - 1):
         gap_min = bands[i]["E_max"]
@@ -230,9 +215,7 @@ def find_allowed_bands(a, b, V0, E_max=20.0, num_samples=1500):
     return bands, gaps
 
 
-# ---------------------------------------------------------------------------
-# 3. TRANSFER MATRIX METHOD (TMM) FOR CONTINUOUS WAVEFUNCTIONS
-# ---------------------------------------------------------------------------
+# Transfer matrix for propagation through a well region (V = 0)
 def _well_matrix(dx, alpha):
     """Transfer matrix across distance dx inside a well (V = 0)."""
     cos_val = np.cos(alpha * dx)
@@ -243,6 +226,7 @@ def _well_matrix(dx, alpha):
     ], dtype=float)
 
 
+# Transfer matrix for propagation through a barrier region (V = V0)
 def _barrier_matrix(dx, E, V0):
     """Transfer matrix across distance dx inside a barrier (V = V0)."""
     if E < V0:
@@ -268,6 +252,7 @@ def _barrier_matrix(dx, E, V0):
         ], dtype=float)
 
 
+# TMM wavefunction builder: constructs psi(x) across N wells + barriers
 def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
     """
     Computes the continuous, smooth wavefunction psi(x) across a finite
@@ -278,32 +263,25 @@ def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
     Total segments = 2*N + 1.
 
     Parameters:
-    -----------
-    N  : int, number of potential wells (e.g. 1 to 20)
-    E  : float, electron energy in eV
-    a  : float, well width in nm
-    b  : float, barrier width in nm
-    V0 : float, barrier height in eV
-    points_per_segment : int, spatial resolution points per well/barrier segment
+        N  : int, number of potential wells (e.g. 1 to 20)
+        E  : float, electron energy in eV
+        a  : float, well width in nm
+        b  : float, barrier width in nm
+        V0 : float, barrier height in eV
+        points_per_segment : int, spatial resolution points per well/barrier segment
 
     Returns:
-    --------
-    x_total     : np.ndarray, spatial coordinates (nm)
-    psi_total   : np.ndarray, real-valued normalized wavefunction psi(x)
-    prob_total  : np.ndarray, probability density |psi(x)|^2 (nm^-1)
-    V_total     : np.ndarray, potential profile V(x) in eV
+        x_total     : np.ndarray, spatial coordinates (nm)
+        psi_total   : np.ndarray, real-valued normalized wavefunction psi(x)
+        prob_total  : np.ndarray, probability density |psi(x)|^2 (nm^-1)
+        V_total     : np.ndarray, potential profile V(x) in eV
     """
     alpha = np.sqrt(E / HBAR2_OVER_2M)
 
-    # Initial state vector at x = 0: [psi(0), psi'(0)]^T
-    # We choose an even-symmetry state or normalized unit state
+    # Initial state vector at x = 0: [psi(0), psi'(0)]
     state = np.array([1.0, 0.0], dtype=float)
 
-    # Segments layout:
-    # Segment 0: Outer barrier (width b)
-    # Then for each well j in 1..N:
-    #   Well j (width a)
-    #   Barrier j (width b)
+    # Build the segment list: outer barrier, then alternating well-barrier pairs
     segments = [("barrier", b)]
     for _ in range(N):
         segments.append(("well", a))
@@ -319,6 +297,7 @@ def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
         dx_grid = np.linspace(0.0, seg_width, points_per_segment, endpoint=False)
         V_seg = V0 if seg_type == "barrier" else 0.0
 
+        # Compute psi at each grid point within this segment
         for dx in dx_grid:
             if seg_type == "well":
                 M_dx = _well_matrix(dx, alpha)
@@ -330,7 +309,7 @@ def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
             psi_list.append(local_state[0])
             V_list.append(V_seg)
 
-        # Propagate state to the end of this segment
+        # Propagate the state vector to the end of this segment
         if seg_type == "well":
             M_end = _well_matrix(seg_width, alpha)
         else:
@@ -339,7 +318,7 @@ def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
         state = M_end @ state
         current_x += seg_width
 
-    # Append very final endpoint
+    # Append the final endpoint
     x_list.append(current_x)
     psi_list.append(state[0])
     V_list.append(segments[-1][0] == "barrier" and V0 or 0.0)
@@ -348,10 +327,9 @@ def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
     psi_arr = np.array(psi_list)
     V_arr = np.array(V_list)
 
-    # Normalization: integral of |psi|^2 dx = 1
+    # Normalize the wavefunction so that integral(|psi|^2 dx) = 1
     dx = np.diff(x_arr)
     prob_unnorm = psi_arr**2
-    # Trapezoidal rule integration
     norm_factor = np.sqrt(np.trapezoid(prob_unnorm, x_arr))
     if norm_factor > 1e-12:
         psi_norm = psi_arr / norm_factor
@@ -363,40 +341,36 @@ def compute_wavefunction_tmm(N, E, a, b, V0, points_per_segment=80):
     return x_arr, psi_norm, prob_density, V_arr
 
 
-# ---------------------------------------------------------------------------
-# 4. DIRECT NUMERICAL DIFFERENTIAL EQUATION SOLVER (Question 6)
-# ---------------------------------------------------------------------------
+# Finite-difference TISE solver: discretizes the Schrodinger equation on a spatial grid
 def solve_tise_numerical(N, a, b, V0, num_states=10, points_per_cell=100):
     """
-    Directly solves the 1D Time-Independent Schrödinger Differential Equation
+    Directly solves the 1D Time-Independent Schrodinger Differential Equation
     using the Finite-Difference Method and tridiagonal matrix diagonalization:
 
         -[hbar^2 / (2m)] * d^2 psi / dx^2 + V(x)*psi(x) = E * psi(x)
 
     Parameters:
-    -----------
-    N : int, number of potential wells
-    a : float, well width in nm
-    b : float, barrier width in nm
-    V0: float, barrier height in eV
-    num_states: int, number of lowest energy eigenstates to return
-    points_per_cell: int, spatial resolution grid points per period (d = a + b)
+        N : int, number of potential wells
+        a : float, well width in nm
+        b : float, barrier width in nm
+        V0: float, barrier height in eV
+        num_states: int, number of lowest energy eigenstates to return
+        points_per_cell: int, spatial resolution grid points per period (d = a + b)
 
     Returns:
-    --------
-    eigenvalues  : np.ndarray, lowest eigen-energies E_n in eV
-    eigenvectors : np.ndarray, normalized wavefunctions psi_n(x) [shape: (M, num_states)]
-    x_grid       : np.ndarray, spatial coordinate grid in nm
-    V_grid       : np.ndarray, potential profile V(x) in eV
+        eigenvalues  : np.ndarray, lowest eigen-energies E_n in eV
+        eigenvectors : np.ndarray, normalized wavefunctions psi_n(x) [shape: (M, num_states)]
+        x_grid       : np.ndarray, spatial coordinate grid in nm
+        V_grid       : np.ndarray, potential profile V(x) in eV
     """
     d = a + b
-    # Structure: outer barrier (b) + N * (well a + barrier b)
+    # Total lattice length: outer barrier (b) + N * (well a + barrier b)
     total_length = b + N * (a + b)
     dx = d / points_per_cell
     M = int(np.round(total_length / dx))
     x_grid = np.linspace(0.0, total_length, M)
 
-    # Construct potential V(x)
+    # Construct the periodic potential V(x) on the spatial grid
     V_grid = np.zeros(M, dtype=float)
     for i, x in enumerate(x_grid):
         if x < b:
@@ -408,20 +382,20 @@ def solve_tise_numerical(N, a, b, V0, num_states=10, points_per_cell=100):
             else:
                 V_grid[i] = V0   # inside barrier
 
-    # Finite difference matrix diagonals:
-    # d_i = 2 * gamma / dx^2 + V(x_i)
-    # e_i = -gamma / dx^2
+    # Build finite-difference Hamiltonian matrix diagonals:
+    # Main diagonal: 2*gamma/dx^2 + V(x_i)
+    # Off-diagonal:  -gamma/dx^2
     diag_kinetic = 2.0 * HBAR2_OVER_2M / (dx**2)
     offdiag_kinetic = -HBAR2_OVER_2M / (dx**2)
 
     diag = diag_kinetic + V_grid
     offdiag = np.full(M - 1, offdiag_kinetic)
 
-    # Solve the tridiagonal symmetric eigenvalue problem: H psi = E psi
+    # Solve the tridiagonal symmetric eigenvalue problem: H * psi = E * psi
     num_evals = min(num_states, M - 2)
     evals, evecs = eigh_tridiagonal(diag, offdiag, select="i", select_range=(0, num_evals - 1))
 
-    # Normalize each eigenvector such that integral |psi(x)|^2 dx = 1
+    # Normalize each eigenvector so that integral(|psi(x)|^2 dx) = 1
     for n in range(num_evals):
         norm = np.sqrt(np.trapezoid(evecs[:, n]**2, x_grid))
         if norm > 1e-12:
@@ -430,25 +404,21 @@ def solve_tise_numerical(N, a, b, V0, num_states=10, points_per_cell=100):
     return evals, evecs, x_grid, V_grid
 
 
-# ---------------------------------------------------------------------------
-# 5. PARAMETER SWEEP ENGINE (For Question 6: E vs. Well Width 'a')
-# ---------------------------------------------------------------------------
+# Parameter sweep engine: varies well width 'a' and tracks eigenvalue evolution
 def sweep_well_width_a(a_values, b, V0, num_states=5):
     """
     Sweeps the well width 'a' to observe how energy eigenvalues and band
-    broadening evolve with quantum confinement (for Question 6).
+    broadening evolve with quantum confinement.
 
     Parameters:
-    -----------
-    a_values   : np.ndarray or list of float, well widths to test (in nm)
-    b          : float, fixed barrier width (nm)
-    V0         : float, fixed barrier height (eV)
-    num_states : int, number of lowest energy levels to track
+        a_values   : np.ndarray or list of float, well widths to test (in nm)
+        b          : float, fixed barrier width (nm)
+        V0         : float, fixed barrier height (eV)
+        num_states : int, number of lowest energy levels to track
 
     Returns:
-    --------
-    a_arr      : np.ndarray, array of tested well widths
-    energies   : np.ndarray, shape (len(a_values), num_states)
+        a_arr      : np.ndarray, array of tested well widths
+        energies   : np.ndarray, shape (len(a_values), num_states)
     """
     a_arr = np.array(a_values)
     energies = np.zeros((len(a_arr), num_states))

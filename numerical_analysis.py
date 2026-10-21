@@ -1,13 +1,13 @@
 """
-numerical_analysis.py: Numerical Differential Equation Solver & Parameter Sweep (Question 6)
-===========================================================================================
+numerical_analysis.py: Numerical Differential Equation Solver & Parameter Sweep
+
 This script fulfills Question 6 of the assignment:
-- Numerically solves the 1D Schrödinger Differential Equation:
+- Numerically solves the 1D Schrodinger Differential Equation:
     -[hbar^2 / (2m)] * d^2 psi / dx^2 + V(x)*psi(x) = E * psi(x)
 - Sweeps the well width 'a' from 0.20 nm to 1.20 nm with fixed b = 0.10 nm, V0 = 10.0 eV.
 - Compares the numerical eigenvalues against analytical Kronig-Penney bands.
 - Investigates the quantum confinement effect (E ~ 1/a^2) and band narrowing.
-- Generates publication figure: 'figure4_parameter_sweep_a.png'.
+- Generates publication figure: 'figures/figure4_parameter_sweep_a.png'.
 
 Run with:
     python3 numerical_analysis.py
@@ -16,7 +16,7 @@ Run with:
 import os
 import numpy as np
 import matplotlib
-matplotlib.use("Agg")  # Non-interactive publication backend
+matplotlib.use("Agg")  # Non-interactive backend for saving figures without a display
 import matplotlib.pyplot as plt
 
 import kp_engine as kp
@@ -29,10 +29,10 @@ def perform_parameter_sweep(b=0.10, V0=10.0, num_a_points=25):
     a_values = np.linspace(0.20, 1.20, num_a_points)
     num_eigenstates = 8
 
-    # Store numerical eigenvalues for N=4 wells
+    # Store numerical eigenvalues for N=4 wells at each value of 'a'
     numerical_energies = np.zeros((len(a_values), num_eigenstates))
 
-    # Store analytical band edges for bands 1, 2, 3
+    # Store analytical band edges for the first 3 bands
     band1_min = np.zeros(len(a_values))
     band1_max = np.zeros(len(a_values))
     band2_min = np.zeros(len(a_values))
@@ -42,7 +42,7 @@ def perform_parameter_sweep(b=0.10, V0=10.0, num_a_points=25):
 
     print("Running numerical differential equation solver across parameter sweep...")
     for idx, a_val in enumerate(a_values):
-        # 1. Numerical Differential Equation solution (N=4 wells)
+        # Solve the TISE numerically for N=4 wells at this well width
         evals, _, _, _ = kp.solve_tise_numerical(
             N=4,
             a=a_val,
@@ -53,7 +53,7 @@ def perform_parameter_sweep(b=0.10, V0=10.0, num_a_points=25):
         )
         numerical_energies[idx, :len(evals)] = evals
 
-        # 2. Analytical Band Edges
+        # Find analytical band edges from the Kronig-Penney dispersion relation
         bands, _ = kp.find_allowed_bands(a=a_val, b=b, V0=V0, E_max=22.0)
         if len(bands) >= 1:
             band1_min[idx] = bands[0]["E_min"]
@@ -70,7 +70,7 @@ def perform_parameter_sweep(b=0.10, V0=10.0, num_a_points=25):
 
 def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=0.10, V0=10.0, filename="figures/figure4_parameter_sweep_a.png"):
     """
-    Generates a comprehensive 3-panel figure visualizing the E vs. a behavior.
+    Generates a 3-panel figure visualizing the energy eigenvalue vs well width behavior.
     """
     os.makedirs("figures", exist_ok=True)
     b1_min, b1_max, b2_min, b2_max, b3_min, b3_max = band_edges
@@ -78,25 +78,23 @@ def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=
     fig = plt.figure(figsize=(14, 10))
     gs = fig.add_gridspec(2, 2, height_ratios=[1.2, 1.0])
 
-    # -----------------------------------------------------------------------
-    # PANEL 1: Energy Eigenvalues & Bands vs. Well Width 'a'
-    # -----------------------------------------------------------------------
+    # Panel 1: Energy eigenvalues and analytical band regions vs well width 'a'
     ax1 = fig.add_subplot(gs[0, :])
 
-    # Shaded analytical bands
+    # Shaded regions represent allowed bands from the analytical KP dispersion
     ax1.fill_between(a_values, b1_min, b1_max, color="lightgreen", alpha=0.35, label="Analytical Band 1 (KP)")
     ax1.fill_between(a_values, b2_min, b2_max, color="lightblue", alpha=0.35, label="Analytical Band 2 (KP)")
     ax1.fill_between(a_values, b3_min, b3_max, color="navajowhite", alpha=0.35, label="Analytical Band 3 (KP)")
 
-    # Barrier height threshold V0
+    # Barrier height reference line
     ax1.axhline(V0, color="crimson", linestyle="--", lw=1.5, label=r"Barrier Height $V_0 = 10.0$ eV")
 
-    # Plot numerical eigenvalues (discrete dots / curves)
+    # Numerical eigenvalues as dots connected by lines
     for state_i in range(numerical_energies.shape[1]):
         label_text = "Numerical TISE Eigenvalues ($N=4$)" if state_i == 0 else ""
         ax1.plot(a_values, numerical_energies[:, state_i], "o-", color="darkblue", markersize=3.5, lw=1.2, alpha=0.8, label=label_text)
 
-    # Quantum confinement 1/a^2 trend guide
+    # Quantum confinement 1/a^2 scaling trend for comparison
     a_fit = np.linspace(0.20, 1.20, 100)
     fit_curve = numerical_energies[0, 0] * (a_values[0] / a_fit)**1.8
     ax1.plot(a_fit, fit_curve, "r:", lw=1.5, label=r"Quantum Confinement Scaling Trend ($\sim 1/a^2$)")
@@ -109,9 +107,7 @@ def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=
     ax1.legend(loc="upper right", framealpha=0.9, fontsize=9.5)
     ax1.grid(True, linestyle=":", alpha=0.6)
 
-    # -----------------------------------------------------------------------
-    # PANEL 2: Bandwidth Evolution (Band 1 & Band 2)
-    # -----------------------------------------------------------------------
+    # Panel 2: Bandwidth evolution showing tight-binding transition
     ax2 = fig.add_subplot(gs[1, 0])
     w1 = b1_max - b1_min
     w2 = b2_max - b2_min
@@ -124,16 +120,14 @@ def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=
     ax2.legend(loc="upper right", framealpha=0.9)
     ax2.grid(True, linestyle=":", alpha=0.6)
 
-    # -----------------------------------------------------------------------
-    # PANEL 3: Wavefunction Comparison (Narrow well vs. Wide well)
-    # -----------------------------------------------------------------------
+    # Panel 3: Wavefunction comparison between narrow and wide wells
     ax3 = fig.add_subplot(gs[1, 1])
 
-    # Narrow well: a = 0.25 nm
+    # Narrow well (a = 0.25 nm): strong inter-well tunneling overlap
     _, psi_narrow, _, V_narrow = kp.compute_wavefunction_tmm(N=3, E=3.50, a=0.25, b=0.10, V0=10.0)
     x_narrow = np.linspace(0, 0.10 + 3 * (0.25 + 0.10), len(psi_narrow))
 
-    # Wide well: a = 0.90 nm
+    # Wide well (a = 0.90 nm): deep atomic-like localization
     _, psi_wide, _, V_wide = kp.compute_wavefunction_tmm(N=3, E=0.70, a=0.90, b=0.10, V0=10.0)
     x_wide = np.linspace(0, 0.10 + 3 * (0.90 + 0.10), len(psi_wide))
 
@@ -151,20 +145,19 @@ def generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=
     plt.tight_layout()
     plt.savefig(filename, dpi=250)
     plt.close()
-    print(f"[OK] Saved: {filename}")
+    print(f"Saved: {filename}")
 
 
 def main():
-    print("=" * 75)
-    print("PHASE 5: NUMERICAL DIFFERENTIAL EQUATION SOLVER & PARAMETER SWEEP")
-    print("=" * 75)
+    print("Numerical Differential Equation Solver & Parameter Sweep")
+    print("-" * 60)
 
     b = 0.10   # fixed barrier width (nm)
     V0 = 10.0  # fixed barrier height (eV)
 
     a_values, numerical_energies, band_edges = perform_parameter_sweep(b=b, V0=V0, num_a_points=21)
 
-    print("\nSample Output: Lowest 4 Eigenvalues (eV) across Selected Well Widths:")
+    print("\nLowest 4 Eigenvalues (eV) across selected well widths:")
     print(f"{'a (nm)':<10} | {'State 1 (eV)':<14} | {'State 2 (eV)':<14} | {'State 3 (eV)':<14} | {'State 4 (eV)':<14}")
     print("-" * 72)
     sample_indices = [0, 4, 8, 12, 16, 20]
@@ -173,12 +166,11 @@ def main():
         evals = numerical_energies[idx, :4]
         print(f"{a_val:<10.2f} | {evals[0]:<14.4f} | {evals[1]:<14.4f} | {evals[2]:<14.4f} | {evals[3]:<14.4f}")
 
-    print("-" * 75)
-    print("Generating comprehensive publication figure 'figures/figure4_parameter_sweep_a.png'...")
+    print("-" * 60)
+    print("Generating figure: figures/figure4_parameter_sweep_a.png ...")
     generate_parameter_sweep_figure(a_values, numerical_energies, band_edges, b=b, V0=V0, filename="figures/figure4_parameter_sweep_a.png")
 
-    print("=" * 75)
-    print("Phase 5 calculations completed successfully!")
+    print("Parameter sweep completed successfully.")
 
 
 if __name__ == "__main__":
