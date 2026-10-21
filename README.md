@@ -64,27 +64,23 @@ python3 plot_generator.py
 
 | File | Type | Description |
 | :--- | :---: | :--- |
-| **[`app.py`](file:///Users/aryanshakya/ssp_project/app.py)** | Web App | Interactive Streamlit dashboard with parameter sliders and live plots. |
-| **[`kp_engine.py`](file:///Users/aryanshakya/ssp_project/kp_engine.py)** | Backend | Core physics engine (analytical dispersion, TMM, tridiagonal TISE solver). |
-| **[`numerical_analysis.py`](file:///Users/aryanshakya/ssp_project/numerical_analysis.py)** | Script | Differential equation solver & parameter sweep with respect to $a$ (Question 6). |
-| **[`plot_generator.py`](file:///Users/aryanshakya/ssp_project/plot_generator.py)** | Script | Standalone generator for publication figures. |
-| **[`demo_runner.py`](file:///Users/aryanshakya/ssp_project/demo_runner.py)** | Script | Master test runner verifying all algorithms, figures, and web server. |
-| **[`final_report.md`](file:///Users/aryanshakya/ssp_project/final_report.md)** | Report | Complete academic report answering all 7 assignment sub-questions. |
-| **[`phase1_theory.md`](file:///Users/aryanshakya/ssp_project/phase1_theory.md)** | Theory | Plain-English guide to Bloch's theorem, TISE, and master equation derivation. |
-| **[`phase2_theory.md`](file:///Users/aryanshakya/ssp_project/phase2_theory.md)** | Theory | Computational physics guide (solid-state units, TMM, finite-difference matrix). |
-| **[`phase3_theory.md`](file:///Users/aryanshakya/ssp_project/phase3_theory.md)** | Theory | Reactive UI design guide, input parameter specs, and diagnostics. |
-| **[`phase4_theory.md`](file:///Users/aryanshakya/ssp_project/phase4_theory.md)** | Theory | Wavefunction curvature, probability density, and allowed vs. forbidden physics. |
-| **[`phase5_theory.md`](file:///Users/aryanshakya/ssp_project/phase5_theory.md)** | Theory | Differential equation discretization and quantum confinement $1/a^2$ scaling. |
-| **[`requirements.txt`](file:///Users/aryanshakya/ssp_project/requirements.txt)** | Config | Python dependency list (numpy, scipy, matplotlib, streamlit). |
+| **[`app.py`](app.py)** | Web App | Interactive Streamlit dashboard with parameter sliders and live plots. |
+| **[`kp_engine.py`](kp_engine.py)** | Backend | Core physics engine (analytical dispersion, TMM, tridiagonal TISE solver). |
+| **[`numerical_analysis.py`](numerical_analysis.py)** | Script | Differential equation solver & parameter sweep with respect to $a$ (Question 6). |
+| **[`plot_generator.py`](plot_generator.py)** | Script | Standalone generator for publication figures. |
+| **[`demo_runner.py`](demo_runner.py)** | Script | Master test runner verifying all algorithms, figures, and web server. |
+| **[`verify_phase1.py`](verify_phase1.py)** | Test | Dispersion equation verification script. |
+| **[`verify_phase2.py`](verify_phase2.py)** | Test | Physics engine and eigenvalue verification script. |
+| **[`requirements.txt`](requirements.txt)** | Config | Python dependency list (numpy, scipy, matplotlib, streamlit). |
 
 ---
 
 ## 📊 Deliverable Figures
 
-- **[Figure 1: Allowed State Wavefunction & Probability Density](file:///Users/aryanshakya/ssp_project/figure1_allowed_state.png)** ($E = 1.20\text{ eV}$)
-- **[Figure 2: Forbidden Band Gap Wavefunction Attenuation](file:///Users/aryanshakya/ssp_project/figure2_forbidden_gap.png)** ($E = 3.20\text{ eV}$)
-- **[Figure 3: E(k) Electronic Band Structure in 1st Brillouin Zone](file:///Users/aryanshakya/ssp_project/figure3_ek_dispersion.png)**
-- **[Figure 4: Numerical TISE Solution & Parameter Sweep vs. Well Width $a$](file:///Users/aryanshakya/ssp_project/figure4_parameter_sweep_a.png)**
+- **[Figure 1: Allowed State Wavefunction & Probability Density](figure1_allowed_state.png)** ($E = 1.20\text{ eV}$)
+- **[Figure 2: Forbidden Band Gap Wavefunction Attenuation](figure2_forbidden_gap.png)** ($E = 3.20\text{ eV}$)
+- **[Figure 3: E(k) Electronic Band Structure in 1st Brillouin Zone](figure3_ek_dispersion.png)**
+- **[Figure 4: Numerical TISE Solution & Parameter Sweep vs. Well Width $a$](figure4_parameter_sweep_a.png)**
 
 ---
 
