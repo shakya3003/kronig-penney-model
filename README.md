@@ -69,8 +69,6 @@ python3 plot_generator.py
 | **[`numerical_analysis.py`](numerical_analysis.py)** | Script | Differential equation solver & parameter sweep with respect to $a$ (Question 6). |
 | **[`plot_generator.py`](plot_generator.py)** | Script | Standalone generator for publication figures. |
 | **[`demo_runner.py`](demo_runner.py)** | Script | Master test runner verifying all algorithms, figures, and web server. |
-| **[`verify_phase1.py`](verify_phase1.py)** | Test | Dispersion equation verification script. |
-| **[`verify_phase2.py`](verify_phase2.py)** | Test | Physics engine and eigenvalue verification script. |
 | **[`requirements.txt`](requirements.txt)** | Config | Python dependency list (numpy, scipy, matplotlib, streamlit). |
 
 ---
