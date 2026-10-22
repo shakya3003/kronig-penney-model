@@ -347,4 +347,74 @@ This project delivered a complete, interactive, and academically rigorous study 
 \bibitem{harris2020} Harris, C. R., et al. (2020). \textit{Array programming with NumPy}. Nature, 585(7825), 357--362.
 \end{thebibliography}
 
+% ══════════════════════════════════════════════════════════════════════
+% APPENDIX: COMPLETE SOURCE CODE LISTINGS
+% ══════════════════════════════════════════════════════════════════════
+
+\clearpage
+\appendix
+\fancyhead[L]{\small\bfseries Appendix: Complete Source Code Listings}
+\fancyhead[R]{\small Solid State Physics --- Question 4}
+
+\section*{Appendix Overview: Codebase Architecture \& Execution}
+\addcontentsline{toc}{section}{Appendix Overview: Codebase Architecture \& Execution}
+
+This appendix provides the complete, fully commented, production-ready source code for all modules developed for the interactive Kronig--Penney investigation. The codebase is organized into five single-responsibility Python modules:
+
+\begin{enumerate}
+    \item \textbf{Appendix~\ref{app:engine} (\texttt{kp\_engine.py}):} Core computational physics engine implementing analytical secular dispersion $f(E)$, automated Brent's method root-finding for exact band edges, the unimodular Transfer Matrix Method (TMM) for multi-well wavefunctions $\psi(x)$, and the tridiagonal matrix finite-difference TISE solver.
+    \item \textbf{Appendix~\ref{app:app} (\texttt{app.py}):} The interactive Streamlit web dashboard providing real-time sliders for $N, E, a, b, V_0$, dynamic green/red allowed/forbidden badges, preset physical regimes, and four dedicated diagnostic visualization tabs.
+    \item \textbf{Appendix~\ref{app:num} (\texttt{numerical\_analysis.py}):} Dedicated numerical pipeline addressing Question 6 by performing systematic parameter sweeps of well width $a \in [0.20, 1.20]$\,nm, extracting discrete eigenvalues, computing bandwidth compression, and plotting Figure~4.
+    \item \textbf{Appendix~\ref{app:plot} (\texttt{plot\_generator.py}):} Standalone plotting engine generating high-resolution, publication-quality figures for the allowed state (Figure~1), forbidden gap state (Figure~2), and reduced-zone $E(k)$ dispersion relation (Figure~3).
+    \item \textbf{Appendix~\ref{app:demo} (\texttt{demo\_runner.py}):} Automated command-line verification suite validating all analytical and numerical routines against benchmark ground truth without requiring web browser interactions.
+\end{enumerate}
+
+\vspace{10pt}
+\begin{lstlisting}[language=bash, caption={Installation and launch commands.}]
+# Clone repository and enter directory
+git clone https://github.com/shakya3003/kronig-penney-model.git
+cd kronig-penney-model
+
+# Install dependencies
+pip install numpy scipy matplotlib streamlit
+
+# Launch interactive Streamlit GUI
+streamlit run app.py
+
+# Run standalone verification test suite
+python3 demo_runner.py
+
+# Run parameter sweep analysis (Question 6)
+python3 numerical_analysis.py
+
+# Regenerate publication figures (Figures 1-3)
+python3 plot_generator.py
+\end{lstlisting}
+
+\clearpage
+\section{Core Computational Physics Engine (\texttt{kp\_engine.py})}
+\label{app:engine}
+\lstinputlisting[language=Python, title={\texttt{kp\_engine.py}}]{../kp_engine.py}
+
+\clearpage
+\section{Interactive Streamlit Web Dashboard (\texttt{app.py})}
+\label{app:app}
+\lstinputlisting[language=Python, title={\texttt{app.py}}]{../app.py}
+
+\clearpage
+\section{Parameter Sweep Pipeline (\texttt{numerical\_analysis.py})}
+\label{app:num}
+\lstinputlisting[language=Python, title={\texttt{numerical\_analysis.py}}]{../numerical_analysis.py}
+
+\clearpage
+\section{Publication Figure Generator (\texttt{plot\_generator.py})}
+\label{app:plot}
+\lstinputlisting[language=Python, title={\texttt{plot\_generator.py}}]{../plot_generator.py}
+
+\clearpage
+\section{Automated Verification Suite (\texttt{demo\_runner.py})}
+\label{app:demo}
+\lstinputlisting[language=Python, title={\texttt{demo\_runner.py}}]{../demo_runner.py}
+
 \end{document}
+

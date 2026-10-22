@@ -137,7 +137,7 @@ with col_b:
 
 d = a + b
 st.sidebar.markdown(f"**Lattice Constant (d = a + b):** `{d:.3f} nm`")
-st.sidebar.markdown(f"**Quantum Constant $\\frac{{\\hbar^2}}{{2m_e}}$:** `0.0762 eV·nm²`")
+st.sidebar.markdown(f"**Quantum Constant $\\frac{{\\hbar^2}}{{2m_e}}$:** `0.0762 eV nm^2`")
 
 
 # Run the dispersion and wavefunction calculations using the engine
@@ -165,7 +165,7 @@ if is_allowed:
         <div class="status-allowed">
             <b>ALLOWED ELECTRONIC STATE</b> (Inside an Energy Band)<br>
             Dispersion Function: <code>f(E) = {f_E:.4f}</code> (within [-1, 1]) &nbsp;|&nbsp;
-            Bloch Wavevector: <code>k = {k_val:.4f} nm⁻¹</code> &nbsp;|&nbsp;
+            Bloch Wavevector: <code>k = {k_val:.4f} nm^-1</code> &nbsp;|&nbsp;
             Wavelength: <code>lambda = {2 * np.pi / k_val:.3f} nm</code>
         </div>
         """,
@@ -177,7 +177,7 @@ else:
         <div class="status-forbidden">
             <b>FORBIDDEN BAND GAP</b> (Bragg Reflection / Attenuation)<br>
             Dispersion Function: <code>f(E) = {f_E:.4f}</code> (outside [-1, 1]) &nbsp;|&nbsp;
-            Decay Factor: <code>kappa = {kappa_val:.4f} nm⁻¹</code> &nbsp;|&nbsp;
+            Decay Factor: <code>kappa = {kappa_val:.4f} nm^-1</code> &nbsp;|&nbsp;
             Penetration Depth: <code>1/kappa = {1 / kappa_val:.3f} nm</code>
         </div>
         """,
